@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+
+    <bean id="jobRepository"
+          class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager"/>
+
+    <!--<bean id="jobLauncher"-->
+    <!--class="org.springframework.batch.core.launch.support.SimpleJobLauncher">-->
+    <!--<property name="jobRepository" ref="jobRepository"/>-->
+    <!--</bean>-->
+
+
+    <bean id="properties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="properties">
+            <value>
+                job.commit.interval=1000
+                f1.data.file.name=f1.TXT
+                f2.data.file.name=f2.TXT
+            </value>
+        </property>
+
+        <!--<property name="jobGrades">-->
+        <!--<map>-->
+        <!--<entry key="40" value="40" />-->
+        <!--<entry key="50" value="50" />-->
+        <!--<entry key="60" value="60" />-->
+        <!--<entry key="70" value="70" />-->
+        <!--<entry key="80" value="80" />-->
+        <!--<entry key="90" value="90" />-->
+        <!--<entry key="100" value="EL1" />-->
+        <!--<entry key="110" value="EL2" />-->
+        <!--</map>-->
+        <!--</property>-->
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="order" value="1"/>
+    </bean>
+
+
+    <jdbc:embedded-database id="mysqlDataSource">
+        <jdbc:script location="classpath:schema.sql"/>
+    </jdbc:embedded-database>
+
+
+    <bean id="jobLauncher"
+          class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+        <property name="jobRepository" ref="jobRepository"/>
+    </bean>
+
+    <job id="annual_incentive_calculation" xmlns="http://www.springframework.org/schema/batch">
+
+        <step id="load_f1_data" next="load_f2_data">
+            <tasklet>
+                <chunk reader="f1_data_reader" processor="f1_data_processor" writer="f1_db_writer"
+                       commit-interval="${job.commit.interval}"/>
+            </tasklet>
+        </step>
+
+        <step id="load_f2_data" next="output_calc_result">
+            <tasklet>
+                <chunk reader="f2_data_reader" processor="f2_data_processor" writer="f2_db_writer"
+                       commit-interval="${job.commit.interval}"/>
+            </tasklet>
+        </step>
+
+        <step id="output_calc_result">
+            <tasklet>
+                <chunk reader="combined_output_reader" writer="combined_output_writer"
+                       commit-interval="${job.commit.interval}"/>
+            </tasklet>
+        </step>
+
+        <!--<step id="output_debug">-->
+        <!--<tasklet>-->
+        <!--<chunk reader="debug_output_reader" writer="debug_output_writer"-->
+        <!--commit-interval="${job.commit.interval}"/>-->
+        <!--</tasklet>-->
+        <!--</step>-->
+
+    </job>
+
+    <job id="test_job" xmlns="http://www.springframework.org/schema/batch">
+        <step id="test">
+            <tasklet>
+                <chunk reader="combined_output_reader" writer="combined_output_writer"
+                       commit-interval="${job.commit.interval}"/>
+            </tasklet>
+        </step>
+    </job>
+
+    <bean id="combined_output_writer" class="com.philips.cn.hr.pps.writer.OCompositeItemWriter" scope="step">
+        <property name="saveAsDestination" value="#{jobParameters[save_as_destination]}"/>
+    </bean>
+
+    <bean id="debug_output_writer" class="org.springframework.batch.item.file.FlatFileItemWriter" scope="step">
+        <property name="resource" value="file://#{jobParameters[save_as_destination]}/output.debug"/>
+        <!--<property name="resource" value="#{jobParameters[save_as_destination]}"/>-->
+        <!--<property name="resource" value="file://tmp/debug.output"/>-->
+        <property name="lineAggregator">
+            <bean class="org.springframework.batch.item.file.transform.PassThroughLineAggregator"/>
+        </property>
+    </bean>
+
+
+    <bean id="f1_data_reader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
+        <property name="resource" value="#{jobParameters[f1_data_file_name]}"/>
+        <!--<property name="resource" value="#{jobParameters[input.file.name]}" />-->
+        <property name="linesToSkip" value="6"/>
+        <property name="lineMapper">
+            <bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+                <property name="lineTokenizer">
+                    <bean class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+                        <property name="delimiter" value="|"/>
+                        <!--<property name="names" value="ID,lastName,firstName,position,birthYear,debutYear"/>-->
+                    </bean>
+                </property>
+                <property name="fieldSetMapper">
+                    <bean class="com.philips.cn.hr.pps.mapper.F1FieldSetMapper"/>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="f2_data_reader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
+        <property name="resource" value="#{jobParameters[f2_data_file_name]}"/>
+        <property name="linesToSkip" value="6"/>
+        <property name="lineMapper">
+            <bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+                <property name="lineTokenizer">
+                    <bean class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+                        <property name="delimiter" value="|"/>
+                    </bean>
+                </property>
+                <property name="fieldSetMapper">
+                    <bean class="com.philips.cn.hr.pps.mapper.F2FieldSetMapper"/>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="f1_data_processor" class="org.springframework.batch.item.support.CompositeItemProcessor">
+        <property name="delegates">
+            <list>
+                <ref bean="employeeTypeProcessor"/>
+                <ref bean="holidayProcessor"/>
+                <ref bean="laborUnionProcessor"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="f2_data_processor" class="org.springframework.batch.item.support.CompositeItemProcessor">
+
+        <property name="delegates">
+            <list>
+                <ref bean="identifySalesProcessor"/>
+                <ref bean="annualIncentiveProcessor"/>
+            </list>
+        </property>
+
+    </bean>
+
+
+    <bean id="employeeTypeProcessor" class="com.philips.cn.hr.pps.processor.EmployeeTypeProcessor"/>
+    <bean id="identifySalesProcessor" class="com.philips.cn.hr.pps.processor.IdentifySalesProcessor"/>
+
+    <bean id="annualIncentiveProcessor" class="com.philips.cn.hr.pps.processor.AnnualIncentiveProcessor"/>
+    <bean id="holidayProcessor" class="com.philips.cn.hr.pps.processor.HolidayProcessor"/>
+    <bean id="laborUnionProcessor" class="com.philips.cn.hr.pps.processor.LaborUnionProcessor"/>
+
+
+    <bean id="f1_db_writer" class="com.philips.cn.hr.pps.writer.JdbcBatchItemWriter">
+        <property name="dataSource" ref="mysqlDataSource"/>
+        <property name="sql">
+            <!-- Why CDATA?
+                 because < etc. is not allowed for xml values
+                 when you use &lt; xml parser will work, but
+                 now the sql won't because of the & spring assumes
+                 a placeholder, see
+                 - AbstractSqlPagingQueryProvider.init(...)
+                 - JdbcParameterUtils.countParameterPlaceholders(...)
+
+                  INSERT INTO pps (companyCode,costCenter,exceptions,jobGrade,esGrp,
+                    eeGrp,wageType,amount,currency,si,employeeType,
+                    annualIncentive,holiday,laborUnion) VALUES
+                     (:companyCode,:costCenter,:exceptions,:jobGrade,:esGrp,
+                    :eeGrp,:wageType,:amount,:currency,:si,:employeeType,
+                    :annualIncentive,:holiday,:laborUnion )
+                 -->
+            <value>
+                <![CDATA[
+                    INSERT INTO employee
+                        (personNum,companyCode,costCenter,jobGrade,currency,
+                        exceptions,salesIndicator,employeeType,annualIncentive,holiday,laborUnion,personalSubArea)
+                    VALUES
+                        (:personNum,:companyCode,:costCenter,:jobGrade,:currency,
+                        :exceptions,:salesIndicator,:employeeType,:annualIncentive,:holiday,:laborUnion,:personalSubArea)
+                ]]>
+            </value>
+        </property>
+
+        <property name="itemSqlParameterSourceProvider">
+            <bean class="org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider"/>
+        </property>
+    </bean>
+
+
+    <bean id="f2_db_writer" class="com.philips.cn.hr.pps.writer.JdbcBatchItemWriter">
+        <property name="dataSource" ref="mysqlDataSource"/>
+        <property name="sql">
+            <!-- Why CDATA?
+                 because < etc. is not allowed for xml values
+                 when you use &lt; xml parser will work, but
+                 now the sql won't because of the & spring assumes
+                 a placeholder, see
+                 - AbstractSqlPagingQueryProvider.init(...)
+                 - JdbcParameterUtils.countParameterPlaceholders(...)
+
+                  INSERT INTO pps (companyCode,costCenter,exceptions,jobGrade,esGrp,
+                    eeGrp,wageType,amount,currency,si,employeeType,
+                    annualIncentive,holiday,laborUnion) VALUES
+                     (:companyCode,:costCenter,:exceptions,:jobGrade,:esGrp,
+                    :eeGrp,:wageType,:amount,:currency,:si,:employeeType,
+                    :annualIncentive,:holiday,:laborUnion )
+                 -->
+            <value>
+                <![CDATA[
+                    UPDATE employee set salesIndicator=:salesIndicator ,
+                        exceptions = :exceptions ,
+                        annualIncentive = :annualIncentive
+                    where personNum = :personNum
+                ]]>
+            </value>
+        </property>
+
+        <property name="itemSqlParameterSourceProvider">
+            <bean class="org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider"/>
+        </property>
+    </bean>
+
+
+    <bean id="combined_output_reader" class="org.springframework.batch.item.database.JdbcCursorItemReader">
+        <property name="dataSource" ref="mysqlDataSource"/>
+        <property name="sql">
+            <!--            SELECT personNum,companyCode,costCenter,
+            exceptions,jobGrade,esGrp,eeGrp,wageType,amount,
+            currency,si,employeeType,annualIncentive,holiday,laborUnion
+            FROM pps;-->
+            <value>
+                <![CDATA[
+                   SELECT
+                        companyCode,costCenter,employeeType,personalSubArea,
+                        sum(annualIncentive),sum(holiday),sum(laborUnion)
+                    FROM employee
+                        group by companyCode,costCenter,employeeType,personalSubArea
+                ]]>
+            </value>
+        </property>
+        <property name="rowMapper">
+            <bean class="com.philips.cn.hr.pps.mapper.CombinedOutputRowMapper"/>
+        </property>
+    </bean>
+
+    <bean id="debug_output_reader" class="org.springframework.batch.item.database.JdbcCursorItemReader">
+        <property name="dataSource" ref="mysqlDataSource"/>
+        <property name="sql">
+            <!--            SELECT personNum,companyCode,costCenter,
+            exceptions,jobGrade,esGrp,eeGrp,wageType,amount,
+            currency,si,employeeType,annualIncentive,holiday,laborUnion
+            FROM pps;-->
+            <value>
+                <![CDATA[
+                   SELECT
+                        personNum,companyCode,costCenter,jobGrade,currency,
+                        exceptions,salesIndicator,employeeType,annualIncentive,holiday,laborUnion,personalSubArea
+                    FROM employee
+                ]]>
+            </value>
+        </property>
+        <property name="rowMapper">
+            <bean class="com.philips.cn.hr.pps.mapper.EmployeeFieldSetMapper"/>
+        </property>
+    </bean>
+
+
+</beans>
