@@ -4,6 +4,8 @@ package com.philips.cn.hr.pps;
  * Created by kevin on 2015/1/19.
  */
 
+import org.springframework.batch.core.JobExecution;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.File;
@@ -167,13 +169,15 @@ public class App extends javax.swing.JFrame {
         args[1]=f2;
         args[2]=s;
         args[3]=String.valueOf(isM);
+
+        JobExecution jobExecution = null;
         try {
-//            com.philips.cn.hr.pps.Application.main(args);
-            com.philips.cn.hr.pps.Application.main(args);
+
+            jobExecution = com.philips.cn.hr.pps.Application.execute(f1,f2,s,isM);
+
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
-
 
     }
 
