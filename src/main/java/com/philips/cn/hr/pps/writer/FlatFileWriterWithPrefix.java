@@ -9,47 +9,48 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileFooterCallback;
 import org.springframework.batch.item.file.FlatFileHeaderCallback;
 import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
  * Created by kvn on 1/14/15.
  */
-public class FlatFileWriterWithPreDefinedName implements ItemWriter<GenericOutput>,
+public class FlatFileWriterWithPrefix extends FlatFileItemWriter implements
         FlatFileFooterCallback, FlatFileHeaderCallback, ItemStream {
 
-    private FlatFileItemWriter<GenericOutput> delegate;
-
-
-    @Override
-    public void writeHeader(Writer writer) throws IOException {
-
+    public String getFileNamePrefix() {
+        return fileNamePrefix;
     }
 
-    @Override
-    public void open(ExecutionContext executionContext) throws ItemStreamException {
-        this.delegate.open(executionContext);
+    public void setFileNamePrefix(String fileNamePrefix) {
+        this.fileNamePrefix = fileNamePrefix;
     }
 
-    @Override
-    public void update(ExecutionContext executionContext) throws ItemStreamException {
-        this.delegate.update(executionContext);
-    }
+    private String fileNamePrefix;
+
+    public static final String TODAY=new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+    public static final String HEADER_LINE="companyCode,costCenter,personalSubArea,annualIncentive,holiday,laborUnion";
+
+
 
     @Override
-    public void close() throws ItemStreamException {
-        this.delegate.close();
+    public void setResource(Resource resource) {
+        super.setResource(resource);
     }
 
     @Override
     public void writeFooter(Writer writer) throws IOException {
-        //noop;
+
     }
 
     @Override
-    public void write(List<? extends GenericOutput> list) throws Exception {
+    public void writeHeader(Writer writer) throws IOException {
 
     }
 

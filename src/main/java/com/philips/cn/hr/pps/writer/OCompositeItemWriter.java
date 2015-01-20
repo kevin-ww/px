@@ -8,6 +8,7 @@ import org.springframework.batch.item.file.transform.PassThroughLineAggregator;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.UrlResource;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -21,7 +22,6 @@ public class OCompositeItemWriter implements ItemStreamWriter<GenericOutput>, In
 
     public static final String TODAY=new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
-    public static final String HEADER_LINE="companyCode,costCenter,personalSubArea,annualIncentive,holiday,laborUnion";
 
     public String saveAsDestination;
 
@@ -79,6 +79,13 @@ public class OCompositeItemWriter implements ItemStreamWriter<GenericOutput>, In
 
 //        writer.write();
 
+//        FlatFileWriterWithPrefix writer;
+//
+//        if(delegates.get(code)==null){
+//            writer = new FlatFileWriterWithPrefix();
+//            writer.setFileNamePrefix(saveAsDestination+ File.pathSeparator+code);
+//        }
+
 
         return writer;
     }
@@ -89,13 +96,17 @@ public class OCompositeItemWriter implements ItemStreamWriter<GenericOutput>, In
 
             //and then open the writer;
 
+
+            writer.setLineAggregator(new PassThroughLineAggregator());
+
+            writer.setHeaderCallback(new DefaultHeaderCallback());
+
+
             if (!ignoreItemStream && (writer instanceof ItemStream)) {
                 ((ItemStream) writer).open(new ExecutionContext());//something wrong ?
             }
 
             //and then add the default line Aggregator;
-
-            writer.setLineAggregator(new PassThroughLineAggregator());
 
             //writer header->hard code at this moment;
 

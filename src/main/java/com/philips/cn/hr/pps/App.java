@@ -167,7 +167,7 @@ public class App extends javax.swing.JFrame {
 
         StringBuffer message = new StringBuffer();
 
-        if(isInputValidate(f1,f2,saveTo)){
+        if(!isInputValidate(f1,f2,saveTo)){
             message.append("file path null is not allowed");
             JOptionPane.showMessageDialog(null, message);
 //            System.exit(0);
@@ -180,9 +180,9 @@ public class App extends javax.swing.JFrame {
 
 
 
-        if (jobExecution.getExitStatus() == ExitStatus.COMPLETED) {
+        if (jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
             //job completed;
-            message.append("job execution completed");
+            message.append("job execution completed ,please check the files generated located in "+saveTo);
             JOptionPane.showMessageDialog(null, message);
 
         } else {
