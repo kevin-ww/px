@@ -45,9 +45,18 @@
     </bean>
 
 
-    <jdbc:embedded-database id="mysqlDataSource">
-        <jdbc:script location="classpath:schema.sql"/>
-    </jdbc:embedded-database>
+    <!--<jdbc:embedded-database id="mysqlDataSource">-->
+        <!--<jdbc:script location="classpath:schema.sql"/>-->
+    <!--</jdbc:embedded-database>-->
+
+
+
+    <bean id="mysqlDataSource"  class="org.apache.commons.dbcp.BasicDataSource">
+    <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+    <property name="url" value="jdbc:mysql://datanode1:3306/kevin"/>
+    <property name="username" value="root"/>
+    <property name="password" value=""/>
+    </bean>
 
 
     <bean id="jobLauncher"
@@ -197,11 +206,11 @@
             <value>
                 <![CDATA[
                     INSERT INTO employee
-                        (personNum,companyCode,costCenter,jobGrade,currency,
-                        exceptions,salesIndicator,employeeType,annualIncentive,holiday,laborUnion,personalSubArea)
+                        (personNum,companyCode,eeGrp,esGrp,costCenter,
+                        baseSalary,currency,wageType,jobGrade,personalSubArea,employeeType,holiday,laborUnion,annualIncentive)
                     VALUES
-                        (:personNum,:companyCode,:costCenter,:jobGrade,:currency,
-                        :exceptions,:salesIndicator,:employeeType,:annualIncentive,:holiday,:laborUnion,:personalSubArea)
+                        (:personNum,:companyCode,:eeGrp,:esGrp,:costCenter,
+                        :baseSalary,:currency,:wageType,:jobGrade,:personalSubArea,:employeeType,:holiday,:laborUnion,:annualIncentive)
                 ]]>
             </value>
         </property>
@@ -234,7 +243,8 @@
                 <![CDATA[
                     UPDATE employee set salesIndicator=:salesIndicator ,
                         exceptions = :exceptions ,
-                        annualIncentive = :annualIncentive
+                        annualIncentive = :annualIncentive,
+                        bonus=:bonus
                     where personNum = :personNum
                 ]]>
             </value>

@@ -1,5 +1,7 @@
 package com.philips.cn.hr.pps.domain;
 
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+
 import java.math.BigDecimal;
 
 /**
@@ -14,17 +16,19 @@ public class CombinedOutput extends GenericOutput{
     BigDecimal laborUnion;
 
 
+
+
     @Override
     public String toString() {
 
         //TODO ,
         StringBuilder sb = new StringBuilder();
-        sb.append(super.getCompanyCode()).append("|").
-                append(super.getCostCenter()).append("|").
+        sb.append(super.getCompanyCode()).append(DelimitedLineTokenizer.DELIMITER_COMMA).
+                append(super.getCostCenter()).append(DelimitedLineTokenizer.DELIMITER_COMMA).
 //                append(super.getEmployeeType()).append("|").
-                append(super.getPersonalSubArea()).append("|").
-                append(this.getAnnualIncentive()).append("|").
-                append(this.getHoliday()).append("|").
+                append(super.getPersonalSubArea()).append(DelimitedLineTokenizer.DELIMITER_COMMA).
+                append(this.getAnnualIncentive()).append(DelimitedLineTokenizer.DELIMITER_COMMA).
+                append(this.getHoliday()).append(DelimitedLineTokenizer.DELIMITER_COMMA).
                 append(this.getLaborUnion());
 
         return sb.toString();

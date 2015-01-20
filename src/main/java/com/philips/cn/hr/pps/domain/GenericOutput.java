@@ -17,6 +17,8 @@ public class GenericOutput {
 //    BigDecimal laborUnion;
 
 
+
+
     public String getCompanyCode() {
         return companyCode;
     }

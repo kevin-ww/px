@@ -21,6 +21,8 @@ public class OCompositeItemWriter implements ItemStreamWriter<GenericOutput>, In
 
     public static final String TODAY=new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
+    public static final String HEADER_LINE="companyCode,costCenter,personalSubArea,annualIncentive,holiday,laborUnion";
+
     public String saveAsDestination;
 
     private Map<String, ItemWriter<? super GenericOutput>> delegates = new HashMap<String, ItemWriter<? super GenericOutput>>();
@@ -75,6 +77,8 @@ public class OCompositeItemWriter implements ItemStreamWriter<GenericOutput>, In
             writer =(FlatFileItemWriter<? super GenericOutput>)this.delegates.get(code);
         }
 
+//        writer.write();
+
 
         return writer;
     }
@@ -92,6 +96,10 @@ public class OCompositeItemWriter implements ItemStreamWriter<GenericOutput>, In
             //and then add the default line Aggregator;
 
             writer.setLineAggregator(new PassThroughLineAggregator());
+
+            //writer header->hard code at this moment;
+
+//            writer.write(Arrays.asList(HEADER_LINE));
 
 
         }

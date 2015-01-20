@@ -37,6 +37,11 @@ public class EmployeeFieldSetMapper implements RowMapper<Employee> {
         emp.setBaseSalary(convert(f1.getBaseSalary()));
         emp.setPersonalSubArea(f1.getPersonalSubArea());
 
+
+        //
+        emp.setEeGrp(f1.getEeGrp());
+        emp.setEsGrp(f1.getEsGrp());
+
         //currency -> CNY;
 
         return emp;

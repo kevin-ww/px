@@ -10,11 +10,13 @@ public class Employee {
 
     public static final String LOCAL_HIRING="LH";
     public static final String LOCAL_PLUS="LP";
-    public static final String EXPATRIATES="EXP";
+    public static final String EXPATRIATES="X";
 
     public static final BigDecimal ZERO= new BigDecimal(0);
 
     public static final String EXECUTIVE_LEVEL_PREFIX="EL";
+
+    public static final String EXECUTIVE_LEVEL_PREFIX_X="EX";
 
 
 
@@ -32,6 +34,37 @@ public class Employee {
     int salesIndicator = 1;  // 0  means sales; others not;
     String employeeType;     //local hiring ,local plus, expatriates;
 
+    //
+    String eeGrp;
+    String esGrp;
+
+
+
+    String wageType;
+
+    public String getWageType() {
+        return wageType;
+    }
+
+    public void setWageType(String wageType) {
+        this.wageType = wageType;
+    }
+
+    public String getEeGrp() {
+        return eeGrp;
+    }
+
+    public void setEeGrp(String eeGrp) {
+        this.eeGrp = eeGrp;
+    }
+
+    public String getEsGrp() {
+        return esGrp;
+    }
+
+    public void setEsGrp(String esGrp) {
+        this.esGrp = esGrp;
+    }
     //
 
     BigDecimal annualIncentive=ZERO;
@@ -56,7 +89,9 @@ public class Employee {
 
     public boolean isNotLowerThanEL1(){
         //EL1; executive level 1;
-        return this.jobGrade.substring(0,2).equalsIgnoreCase(EXECUTIVE_LEVEL_PREFIX);
+        //EXCO;
+        String jg = this.jobGrade.substring(0,2).toUpperCase();
+        return jg.equals(EXECUTIVE_LEVEL_PREFIX)||jg.equals(EXECUTIVE_LEVEL_PREFIX_X);
     }
 
     public boolean isLocalHiring(){

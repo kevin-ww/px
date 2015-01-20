@@ -17,19 +17,23 @@ public class LaborUnionProcessor implements ItemProcessor<Employee, Employee> {
 //            •	 “SI” is in the calculation scope.
 
 
+    public static final BigDecimal BASIC_AMOUNT=new BigDecimal(2800.00);
+
+    public static final BigDecimal BASIC_PERCENTAGE=new BigDecimal(0.02);
+
     @Override
     public Employee process(Employee emp) throws Exception {
 
         BigDecimal laborUnion = null;
 
         if (emp.isExpatriates()) {
-            laborUnion = new BigDecimal(2800);
-        } else if (emp.isLocalPlus()&&emp.isLowerThanEL1()) {
-            laborUnion = emp.getBaseSalary().multiply(new BigDecimal(0.2));
-        }else if(emp.isLocalPlus()&&(!emp.isLowerThanEL1())){
-            laborUnion=new BigDecimal(2800);
+            laborUnion = BASIC_AMOUNT;
+        } else if (emp.isLocalPlus()&&(!emp.isNotLowerThanEL1())) {
+            laborUnion = emp.getBaseSalary().multiply(BASIC_PERCENTAGE,HolidayProcessor.DEFAULT_MATH_CONTEXT);
+        }else if(emp.isLocalPlus()&&(emp.isNotLowerThanEL1())){
+            laborUnion=BASIC_AMOUNT;
         } else {
-            laborUnion = emp.getBaseSalary().multiply(new BigDecimal(0.2));
+            laborUnion = emp.getBaseSalary().multiply(BASIC_PERCENTAGE,HolidayProcessor.DEFAULT_MATH_CONTEXT);
         }
 
         emp.setLaborUnion(laborUnion);

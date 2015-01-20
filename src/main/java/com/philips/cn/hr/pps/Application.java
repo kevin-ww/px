@@ -27,16 +27,23 @@ public class Application {
 
         String applicationCtx = System.getProperty("application-context");
 
+        if(applicationCtx==null){
+            logger.error("application context not provided.");
+            System.exit(1);
+        }
+
         logger.info("now executing the cacl. using context file " + applicationCtx);
+
+
 
         ApplicationContext ctx =
                 new FileSystemXmlApplicationContext(createURL(applicationCtx).toString());
 
 
         JobParameters jobParameters = new JobParametersBuilder().
-                addString("f1_data_file_name", f1Name).
-                addString("f2_data_file_name", f2Name).
-                addString("save_as_destination", saveTo).
+                addString("f1_data_file_name", createURL(f1Name).toString()).
+                addString("f2_data_file_name", createURL(f2Name).toString()).
+                addString("save_as_destination", createURL(saveTo).toString()).
                 addString("is_monthly_cacl", String.valueOf(isCalcForMonthly)).
                 toJobParameters();
 
@@ -59,51 +66,56 @@ public class Application {
 
     public static void main(String[] args) throws Exception {
 
-        System.out.println("args:" + Arrays.toString(args));
+        String f1=createURL("c:/tmp/f1.TXT").toString();
+        String f2 =createURL("c:/tmp/f2.TXT").toString();
+        String s = createURL("c:/tmp").toString();
+        JobExecution execution = Application.execute(f1,f2,s,false);
 
-        if (args.length != 4) {
-            //
-            System.err.println("Usage:invalid parameters");
-            System.exit(1);
-        }
-
-        String applicationCtx = System.getProperty("application-context");
-
-        ApplicationContext ctx =
-                new FileSystemXmlApplicationContext(createURL(applicationCtx).toString());
-
-        String f1Name = createURL(args[0]).toString();
-
-        String f2Name = createURL(args[1]).toString();
-
-        String saveAsDestination = createURL(args[2]).toString();
-
-        boolean isMonthlyCacl =
-                Boolean.valueOf(args[3]);  //execute cacl. monthly ;
-
-        System.out.println("Now going to execute the job with parameters: " + args);
-
-        JobParameters jobParameters = new JobParametersBuilder().
-                addString("f1_data_file_name", f1Name).
-                addString("f2_data_file_name", f2Name).
-                addString("save_as_destination", saveAsDestination).
-                addString("is_monthly_cacl", String.valueOf(isMonthlyCacl)).
-                toJobParameters();
-
-        SimpleJobLauncher jobLauncher = (SimpleJobLauncher) ctx.getBean("jobLauncher");
-        Job job = (Job) ctx.getBean("annual_incentive_calculation");
-
-        try {
-
-            JobExecution execution = jobLauncher.run(job, jobParameters);
-
-            System.out.println("Exit Status : " + execution.getStatus());
-
-            System.out.println("Exit Status : " + execution.getAllFailureExceptions());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        System.out.println("Done");
+//        System.out.println("args:" + Arrays.toString(args));
+//
+//        if (args.length != 4) {
+//            //
+//            System.err.println("Usage:invalid parameters");
+//            System.exit(1);
+//        }
+//
+//        String applicationCtx = System.getProperty("application-context");
+//
+//        ApplicationContext ctx =
+//                new FileSystemXmlApplicationContext(createURL(applicationCtx).toString());
+//
+//        String f1Name = createURL(args[0]).toString();
+//
+//        String f2Name = createURL(args[1]).toString();
+//
+//        String saveAsDestination = createURL(args[2]).toString();
+//
+//        boolean isMonthlyCacl =
+//                Boolean.valueOf(args[3]);  //execute cacl. monthly ;
+//
+//        System.out.println("Now going to execute the job with parameters: " + args);
+//
+//        JobParameters jobParameters = new JobParametersBuilder().
+//                addString("f1_data_file_name", f1Name).
+//                addString("f2_data_file_name", f2Name).
+//                addString("save_as_destination", saveAsDestination).
+//                addString("is_monthly_cacl", String.valueOf(isMonthlyCacl)).
+//                toJobParameters();
+//
+//        SimpleJobLauncher jobLauncher = (SimpleJobLauncher) ctx.getBean("jobLauncher");
+//        Job job = (Job) ctx.getBean("annual_incentive_calculation");
+//
+//        try {
+//
+//            JobExecution execution = jobLauncher.run(job, jobParameters);
+//
+//            System.out.println("Exit Status : " + execution.getStatus());
+//
+//            System.out.println("Exit Status : " + execution.getAllFailureExceptions());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        System.out.println("Done");
 
     }
 

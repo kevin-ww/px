@@ -1,5 +1,7 @@
 package com.philips.cn.hr.pps.domain;
 
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+
 import java.math.BigDecimal;
 
 /**
@@ -20,10 +22,10 @@ public class AnnualIncentiveOutput extends GenericOutput {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(super.getCompanyCode()).append("|").
-                append(super.getCostCenter()).append("|").
-                append(super.getEmployeeType()).append("|").
-                append(super.getPersonalSubArea()).append("|").
+        sb.append(super.getCompanyCode()).append(DelimitedLineTokenizer.DELIMITER_COMMA).
+                append(super.getCostCenter()).append(DelimitedLineTokenizer.DELIMITER_COMMA).
+                append(super.getEmployeeType()).append(DelimitedLineTokenizer.DELIMITER_COMMA).
+                append(super.getPersonalSubArea()).append(DelimitedLineTokenizer.DELIMITER_COMMA).
                 append(this.getAnnualIncentive());
 
         return sb.toString();
