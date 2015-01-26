@@ -56,9 +56,9 @@ public class App extends javax.swing.JFrame {
             }
         });
 
-        jLabel1.setText("Upload file 1");
+        jLabel1.setText("Employee basic salary file");
 
-        jLabel2.setText("Upload file 2");
+        jLabel2.setText("Employee AI file");
 
         uploadBtn2.setText("choose");
         uploadBtn2.addActionListener(new java.awt.event.ActionListener() {
@@ -192,7 +192,8 @@ public class App extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, message);
         }
 
-        System.exit(0);
+//        System.exit(0);don't exit;
+        return;
 
 
     }

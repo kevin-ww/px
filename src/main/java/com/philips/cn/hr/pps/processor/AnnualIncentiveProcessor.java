@@ -3,6 +3,8 @@ package com.philips.cn.hr.pps.processor;
 import com.philips.cn.hr.pps.domain.Employee;
 import org.springframework.batch.item.ItemProcessor;
 
+import java.math.BigDecimal;
+
 /**
  * Created by kvn on 1/14/15.
  */
@@ -16,14 +18,19 @@ public class AnnualIncentiveProcessor implements ItemProcessor<Employee,Employee
 
     public static final String ZZ01 = "ZZ01";
 
+    public static final BigDecimal TWELVE= new BigDecimal(12.00);
+
     @Override
     public Employee process(Employee emp) throws Exception {
 
+        BigDecimal ai = Employee.ZERO;
+
 
         if(emp.getExceptions().equalsIgnoreCase(ZZ01)||emp.isSales()){
-            emp.setAnnualIncentive(Employee.ZERO);
+            emp.setAnnualIncentive(ai);
         } else {
-            emp.setAnnualIncentive(emp.getBonus());
+            ai=emp.getBonus().divide(TWELVE,HolidayProcessor.DEFAULT_MATH_CONTEXT);
+            emp.setAnnualIncentive(ai);
         }
 
         return emp;
