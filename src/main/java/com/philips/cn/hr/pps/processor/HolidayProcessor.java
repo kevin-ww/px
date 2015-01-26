@@ -17,13 +17,13 @@ public class HolidayProcessor implements ItemProcessor<Employee,Employee> {
     public static final BigDecimal P2 = new BigDecimal(21.75);
 
 
-    public static final MathContext DEFAULT_MATH_CONTEXT  = new MathContext(8,RoundingMode.HALF_UP);
+//    public static final MathContext DEFAULT_MATH_CONTEXT  = new MathContext(8,RoundingMode.HALF_UP);
 
     @Override
     public Employee process(Employee item) throws Exception {
         BigDecimal holiday =
-                item.getBaseSalary().divide(P2,DEFAULT_MATH_CONTEXT);
-        holiday=holiday.multiply(P1,DEFAULT_MATH_CONTEXT);
+                item.getBaseSalary().divide(P2,Employee.DEFAULT_MATH_CONTEXT);
+        holiday=holiday.multiply(P1,Employee.DEFAULT_MATH_CONTEXT);
         item.setHoliday(holiday);
         return item;
     }

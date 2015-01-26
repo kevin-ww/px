@@ -26,7 +26,7 @@ public class EmployeeFieldSetMapper implements RowMapper<Employee> {
 //    String jobGrade;
 //    String personalSubArea;
 
-    public static Employee convert(F1 f1){
+    public static Employee convert(F1 f1) throws Exception{
 
         Employee emp = new Employee();
         emp.setPersonNum(f1.getPeronNum());
@@ -55,7 +55,7 @@ public class EmployeeFieldSetMapper implements RowMapper<Employee> {
 //    String amount;
 //    String currency;
 
-    public static Employee convert(F2 f2){
+    public static Employee convert(F2 f2) throws Exception{
         Employee emp = new Employee();
         emp.setPersonNum(f2.getPeronNum());
         emp.setExceptions(f2.getExceptions());
@@ -65,9 +65,14 @@ public class EmployeeFieldSetMapper implements RowMapper<Employee> {
 
 
     //    7,908.00->7908.00
-    public static BigDecimal convert(String baseSalary){
+    public static BigDecimal convert(String baseSalary) throws Exception{
         String amt = baseSalary.replaceAll(",","");
-        return new BigDecimal(amt);
+        try {
+            return new BigDecimal(amt);
+        } catch (Exception e) {
+//            e.printStackTrace();
+            throw e;
+        }
     }
 
 

@@ -29,7 +29,7 @@ public class AnnualIncentiveProcessor implements ItemProcessor<Employee,Employee
         if(emp.getExceptions().equalsIgnoreCase(ZZ01)||emp.isSales()){
             emp.setAnnualIncentive(ai);
         } else {
-            ai=emp.getBonus().divide(TWELVE,HolidayProcessor.DEFAULT_MATH_CONTEXT);
+            ai=emp.getBonus().divide(TWELVE,Employee.DEFAULT_MATH_CONTEXT);
             emp.setAnnualIncentive(ai);
         }
 

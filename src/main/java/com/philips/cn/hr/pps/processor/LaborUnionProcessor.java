@@ -29,11 +29,11 @@ public class LaborUnionProcessor implements ItemProcessor<Employee, Employee> {
         if (emp.isExpatriates()) {
             laborUnion = BASIC_AMOUNT;
         } else if (emp.isLocalPlus()&&(!emp.isNotLowerThanEL1())) {
-            laborUnion = emp.getBaseSalary().multiply(BASIC_PERCENTAGE,HolidayProcessor.DEFAULT_MATH_CONTEXT);
+            laborUnion = emp.getBaseSalary().multiply(BASIC_PERCENTAGE,Employee.DEFAULT_MATH_CONTEXT);
         }else if(emp.isLocalPlus()&&(emp.isNotLowerThanEL1())){
             laborUnion=BASIC_AMOUNT;
         } else {
-            laborUnion = emp.getBaseSalary().multiply(BASIC_PERCENTAGE,HolidayProcessor.DEFAULT_MATH_CONTEXT);
+            laborUnion = emp.getBaseSalary().multiply(BASIC_PERCENTAGE,Employee.DEFAULT_MATH_CONTEXT);
         }
 
         emp.setLaborUnion(laborUnion);

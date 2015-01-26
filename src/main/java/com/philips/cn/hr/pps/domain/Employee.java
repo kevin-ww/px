@@ -1,6 +1,8 @@
 package com.philips.cn.hr.pps.domain;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 
 /**
  * Created by kvn on 1/15/15.
@@ -13,6 +15,9 @@ public class Employee {
     public static final String EXPATRIATES="X";
 
     public static final BigDecimal ZERO= new BigDecimal(0);
+
+    public static final MathContext DEFAULT_MATH_CONTEXT  = new MathContext(8, RoundingMode.HALF_UP);
+
 
     public static final String EXECUTIVE_LEVEL_PREFIX="EL";
 
