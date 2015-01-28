@@ -12,7 +12,7 @@ public class Employee {
 
     public static final String LOCAL_HIRING="LH";
     public static final String LOCAL_PLUS="LP";
-    public static final String EXPATRIATES="X";
+    public static final String EXPATRIATES="I"; //Expatriates的判断逻辑改成 EEgrp = I
 
     public static final BigDecimal ZERO= new BigDecimal(0);
 

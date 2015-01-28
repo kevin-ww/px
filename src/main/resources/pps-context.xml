@@ -53,7 +53,7 @@
 
     <!--<bean id="mysqlDataSource"  class="org.apache.commons.dbcp.BasicDataSource">-->
     <!--<property name="driverClassName" value="com.mysql.jdbc.Driver"/>-->
-    <!--<property name="url" value="jdbc:mysql://datanode1:3306/kevin"/>-->
+    <!--<property name="url" value="jdbc:mysql://localhost:3306/kevin"/>-->
     <!--<property name="username" value="root"/>-->
     <!--<property name="password" value=""/>-->
     <!--</bean>-->
@@ -265,11 +265,11 @@
             FROM pps;-->
             <value>
                 <![CDATA[
-                   SELECT
-                        companyCode,costCenter,employeeType,personalSubArea,
-                        sum(annualIncentive),sum(holiday),sum(laborUnion)
-                    FROM employee
-                        group by companyCode,costCenter,employeeType,personalSubArea
+                    SELECT
+                      companyCode,costCenter,employeeType,personalSubArea,
+                      sum(annualIncentive),sum(holiday),sum(laborUnion)
+                    FROM (select * from employee where UPPER(eeGrp)!='X') as e
+                      group by companyCode,costCenter,employeeType,personalSubArea
                 ]]>
             </value>
         </property>
