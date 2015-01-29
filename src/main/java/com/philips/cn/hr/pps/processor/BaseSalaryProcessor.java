@@ -10,8 +10,7 @@ import java.math.BigDecimal;
  */
 public class BaseSalaryProcessor implements ItemProcessor<Employee,Employee> {
 
-    public static final String YEARLY_PAY_WAGE_TYPE="1101";
-
+    public static final String YEARLY_PAY_WAGE_TYPE="1001";
 
     @Override
     public Employee process(Employee employee) throws Exception {
