@@ -159,6 +159,7 @@
         <property name="delegates">
             <list>
                 <ref bean="employeeTypeProcessor"/>
+                <ref bean="baseSalaryProcessor"/>
                 <ref bean="holidayProcessor"/>
                 <ref bean="laborUnionProcessor"/>
             </list>
@@ -179,6 +180,7 @@
 
     <bean id="employeeTypeProcessor" class="com.philips.cn.hr.pps.processor.EmployeeTypeProcessor"/>
     <bean id="identifySalesProcessor" class="com.philips.cn.hr.pps.processor.IdentifySalesProcessor"/>
+    <bean id="baseSalaryProcessor" class="com.philips.cn.hr.pps.processor.BaseSalaryProcessor"/>
 
     <bean id="annualIncentiveProcessor" class="com.philips.cn.hr.pps.processor.AnnualIncentiveProcessor"/>
     <bean id="holidayProcessor" class="com.philips.cn.hr.pps.processor.HolidayProcessor"/>

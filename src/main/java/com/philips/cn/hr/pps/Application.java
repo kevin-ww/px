@@ -2,7 +2,10 @@ package com.philips.cn.hr.pps;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.batch.core.*;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -10,7 +13,6 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 
 /**
  * Created by kvn on 1/14/15.
@@ -19,18 +21,17 @@ public class Application {
 
     protected final static Log logger = LogFactory.getLog(Application.class);
 
-    public static JobExecution execute(String f1Name, String f2Name, String saveTo, boolean isCalcForMonthly) {
+    public static JobExecution execute(String f1Name, String f2Name, String saveTo, boolean isCalcForMonthly) throws Exception {
 
 
         String applicationCtx = System.getProperty("application-context");
 
-        if(applicationCtx==null){
+        if (applicationCtx == null) {
             logger.error("application context not provided.");
             System.exit(1);
         }
 
         logger.info("now executing the cacl. using context file " + applicationCtx);
-
 
 
         ApplicationContext ctx =
@@ -44,29 +45,27 @@ public class Application {
                 addString("is_monthly_cacl", String.valueOf(isCalcForMonthly)).
                 toJobParameters();
 
-        logger.info("now executing the cacl. using jobParameters " + jobParameters.toString());
+        logger.info("now executing the calculation, using jobParameters " + jobParameters.toString());
 
         SimpleJobLauncher jobLauncher = (SimpleJobLauncher) ctx.getBean("jobLauncher");
 
         Job job = (Job) ctx.getBean("annual_incentive_calculation");
 
-        JobExecution execution = null;
-        try {
-            execution = jobLauncher.run(job, jobParameters);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return execution;
+        return jobLauncher.run(job, jobParameters);
     }
 
 
     public static void main(String[] args) throws Exception {
 
-        String f1=createURL("c:/tmp/f1.TXT").toString();
-        String f2 =createURL("c:/tmp/f2.TXT").toString();
-        String s = createURL("c:/tmp").toString();
-        JobExecution execution = Application.execute(f1,f2,s,false);
+//        String f1=createURL("/tmp/f1.TXT").toString();
+//        String f2 =createURL("/tmp/f2.TXT").toString();
+//        String s = createURL("/tmp").toString();
+
+        String f1 = "/tmp/f1.TXT";
+        String f2 = "/tmp/f2.TXT";
+        String s = "/tmp";
+
+        JobExecution execution = Application.execute(f1, f2, s, false);
 
 //        System.out.println("args:" + Arrays.toString(args));
 //

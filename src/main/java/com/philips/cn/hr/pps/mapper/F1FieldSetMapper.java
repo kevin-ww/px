@@ -26,6 +26,7 @@ public class F1FieldSetMapper implements FieldSetMapper<F1> {
 
 
         if(fieldSet == null||fieldSet.getFieldCount()<3){//check footer?
+            //TODO , need check the input file format;
             return null;
         }
 

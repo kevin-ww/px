@@ -23,6 +23,8 @@ public class Employee {
 
     public static final String EXECUTIVE_LEVEL_PREFIX_X="EX";
 
+    public static final BigDecimal TWELVE_MONTH=new BigDecimal(12);
+
 
 
 

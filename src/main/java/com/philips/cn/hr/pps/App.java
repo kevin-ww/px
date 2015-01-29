@@ -7,6 +7,7 @@ package com.philips.cn.hr.pps;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.StepExecution;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -76,7 +77,7 @@ public class App extends javax.swing.JFrame {
             }
         });
 
-        startCaclBtn.setText("Start Cacl.");
+        startCaclBtn.setText("Start Calculation...");
         startCaclBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 startCaclBtnActionPerformed(evt);
@@ -167,7 +168,7 @@ public class App extends javax.swing.JFrame {
 
         StringBuffer message = new StringBuffer();
 
-        if(!isInputValidate(f1,f2,saveTo)){
+        if (!isInputValidate(f1, f2, saveTo)) {
             message.append("file path null is not allowed");
             JOptionPane.showMessageDialog(null, message);
 //            System.exit(0);
@@ -176,19 +177,38 @@ public class App extends javax.swing.JFrame {
 
         System.out.println("going to execute application with parameters " + Arrays.asList(f1, f2, saveTo));
 
-        JobExecution jobExecution = Application.execute(f1, f2, saveTo, false);
+        JobExecution jobExecution = null;
 
-
+        try {
+            jobExecution = Application.execute(f1, f2, saveTo, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+            message.append(e.getMessage());
+            JOptionPane.showMessageDialog(null, message);
+            return;
+        }
 
         if (jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
             //job completed;
-            message.append("job execution completed ,please check the files generated located in "+saveTo);
+            message.append("Job execution completed ,Please verify generated files in " );
+            message.append(saveTo);
             JOptionPane.showMessageDialog(null, message);
 
         } else {
-            for (Throwable exception : jobExecution.getAllFailureExceptions()) {
-                message.append("cause:" + exception.getCause()).append("message " + exception.getMessage());
+//            for (Throwable exception : jobExecution.getAllFailureExceptions()) {
+//                message.append("cause:" + exception.getCause()).append("message " + exception.getMessage());
+//            }
+//            JOptionPane.showMessageDialog(null, message);
+
+            for (StepExecution stepExecution:jobExecution.getStepExecutions()){
+                if(!stepExecution.getExitStatus().equals(ExitStatus.COMPLETED)){
+                    message.append(stepExecution.getFailureExceptions());
+                    message.append(" occurred when executing ");
+                    message.append(stepExecution.getStepName());
+                    break;
+                }
             }
+
             JOptionPane.showMessageDialog(null, message);
         }
 
@@ -198,8 +218,8 @@ public class App extends javax.swing.JFrame {
 
     }
 
-    private boolean isInputValidate(String f1,String f2,String s){
-        if(f1==null||f1==""||f2==null||f2==""||s==null||s==""){
+    private boolean isInputValidate(String f1, String f2, String s) {
+        if (f1 == null || f1 == "" || f2 == null || f2 == "" || s == null || s == "") {
             return false;
         } else
             return true;

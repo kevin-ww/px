@@ -33,7 +33,10 @@ public class EmployeeFieldSetMapper implements RowMapper<Employee> {
         emp.setCompanyCode(f1.getCompanyCode());
         emp.setCostCenter(f1.getCostCenter());
 
+        emp.setWageType(f1.getWageType());//wage type is required for base salary calculation;
+
         emp.setJobGrade(f1.getJobGrade());
+
         emp.setBaseSalary(convert(f1.getBaseSalary()));
         emp.setPersonalSubArea(f1.getPersonalSubArea());
 

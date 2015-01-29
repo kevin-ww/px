@@ -18,8 +18,6 @@ public class AnnualIncentiveProcessor implements ItemProcessor<Employee,Employee
 
     public static final String ZZ01 = "ZZ01";
 
-    public static final BigDecimal TWELVE= new BigDecimal(12.00);
-
     @Override
     public Employee process(Employee emp) throws Exception {
 
@@ -29,7 +27,7 @@ public class AnnualIncentiveProcessor implements ItemProcessor<Employee,Employee
         if(emp.getExceptions().equalsIgnoreCase(ZZ01)||emp.isSales()){
             emp.setAnnualIncentive(ai);
         } else {
-            ai=emp.getBonus().divide(TWELVE,Employee.DEFAULT_MATH_CONTEXT);
+            ai=emp.getBonus().divide(Employee.TWELVE_MONTH,Employee.DEFAULT_MATH_CONTEXT);
             emp.setAnnualIncentive(ai);
         }
 
