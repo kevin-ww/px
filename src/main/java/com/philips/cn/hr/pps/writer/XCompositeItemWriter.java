@@ -1,7 +1,6 @@
 package com.philips.cn.hr.pps.writer;
 
 
-import com.philips.cn.hr.pps.domain.CombinedOutput;
 import com.philips.cn.hr.pps.domain.GenericOutput;
 import org.springframework.batch.item.*;
 import org.springframework.batch.item.file.FlatFileItemWriter;
@@ -15,7 +14,7 @@ import java.util.*;
 
 public class XCompositeItemWriter<T extends GenericOutput> implements ItemStreamWriter<T>, InitializingBean {
 
-    public static final String TODAY=new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+    public static final String TODAY = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
     public String saveAsDestination;
 
@@ -75,58 +74,66 @@ public class XCompositeItemWriter<T extends GenericOutput> implements ItemStream
 
     @Override
     public void write(List<? extends T> ts) throws Exception {
-        for(T t : ts){
-            ItemWriter<T> itemWriter  = getAssociatedItemWriter(t);
+        for (T t : ts) {
+            ItemWriter<T> itemWriter = getAssociatedItemWriter(t);
             itemWriter.write(Arrays.asList(t));
         }
     }
 
     private ItemWriter<T> getAssociatedItemWriter(T t) throws MalformedURLException {
-        
-        String code = t.getCompanyCode()+"_"+t.getEmployeeType();
+
+        String code = t.getCompanyCode() + "_" + t.getEmployeeType();
 
 
         //CN15 ,output sales incentive is required;
 
 
-        if(t.getCompanyCode().equalsIgnoreCase("CN15")){
-
-        }
+//        if(t.getCompanyCode().equalsIgnoreCase("CN15")){
+//
+//        }
         //
         //new delegate;
 
         FlatFileItemWriter<T> writer = null;
 
-        if(delegates.get(code)==null){
+        if (delegates.get(code) == null) {
 
-            writer  = new FlatFileItemWriter<T>();
+            writer = new FlatFileItemWriter<T>();
 
-            String resource = saveAsDestination+"/"+code+"_"+TODAY+".csv";
+            String resource = saveAsDestination + "/" + code + "_" + TODAY + ".csv";
 
-            System.out.println("going to save as "+resource);
+            System.out.println("going to save as " + resource);
 
             writer.setResource(new UrlResource(resource));
 
-            this.registerDelegate(code,writer);
+            this.registerDelegate(code, writer, t.getCompanyCode());
 
         } else {
-            writer = (FlatFileItemWriter<T>)this.delegates.get(code);
+            writer = (FlatFileItemWriter<T>) this.delegates.get(code);
         }
 
         return writer;
     }
 
-    private void registerDelegate(String code, FlatFileItemWriter<T> writer) {
+    private void registerDelegate(String code, FlatFileItemWriter<T> writer, String companyCode) {
 
-        if(this.delegates.get(code)==null){
+        if (this.delegates.get(code) == null) {
 
-            this.delegates.put(code,writer);
+            this.delegates.put(code, writer);
 
             //and then open the writer;
 
             writer.setLineAggregator(new PassThroughLineAggregator());
 
-            writer.setHeaderCallback(new DefaultHeaderCallback());
+
+            //if companyCode equals to CN15 ,output sales incentive is required;
+
+            if (companyCode.equalsIgnoreCase("CN15")) {
+                writer.setHeaderCallback(new CN15HeaderCallback());
+            } else {
+                writer.setHeaderCallback(new DefaultHeaderCallback());
+            }
+
 
             if (!ignoreItemStream && (writer instanceof ItemStream)) {
                 ((ItemStream) writer).open(new ExecutionContext());//something wrong ?

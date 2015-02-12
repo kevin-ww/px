@@ -45,18 +45,18 @@
     </bean>
 
 
-    <!--<jdbc:embedded-database id="mysqlDataSource">-->
-        <!--<jdbc:script location="classpath:schema.sql"/>-->
-    <!--</jdbc:embedded-database>-->
+    <jdbc:embedded-database id="mysqlDataSource">
+        <jdbc:script location="classpath:schema.sql"/>
+    </jdbc:embedded-database>
 
 
 
-    <bean id="mysqlDataSource"  class="org.apache.commons.dbcp.BasicDataSource">
-    <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-    <property name="url" value="jdbc:mysql://datanode1:3306/kevin"/>
-    <property name="username" value="root"/>
-    <property name="password" value=""/>
-    </bean>
+    <!--<bean id="mysqlDataSource"  class="org.apache.commons.dbcp.BasicDataSource">-->
+    <!--<property name="driverClassName" value="com.mysql.jdbc.Driver"/>-->
+    <!--<property name="url" value="jdbc:mysql://datanode1:3306/kevin"/>-->
+    <!--<property name="username" value="root"/>-->
+    <!--<property name="password" value=""/>-->
+    <!--</bean>-->
 
 
     <bean id="jobLauncher"
@@ -80,13 +80,20 @@
             </tasklet>
         </step>
 
-        <step id="Calculate_SalesIncentive" next="output_calc_result">
+        <step id="Calculate_SalesIncentive" next="output_calc_result_CN15">
             <tasklet ref="calculateSalesIncentiveTasklet"/>
         </step>
 
-        <step id="output_calc_result">
+        <step id="output_calc_result_CN15" next="output_calc_result_OTHER">
             <tasklet>
-                <chunk reader="combined_output_reader" writer="combined_output_writer"
+                <chunk reader="CN15_output_reader" writer="combined_output_writer"
+                       commit-interval="${job.commit.interval}"/>
+            </tasklet>
+        </step>
+
+        <step id="output_calc_result_OTHER">
+            <tasklet>
+                <chunk reader="OTHER_output_reader" writer="combined_output_writer"
                        commit-interval="${job.commit.interval}"/>
             </tasklet>
         </step>
@@ -100,14 +107,14 @@
 
     </job>
 
-    <job id="test_job" xmlns="http://www.springframework.org/schema/batch">
-        <step id="test">
-            <tasklet>
-                <chunk reader="combined_output_reader" writer="combined_output_writer"
-                       commit-interval="${job.commit.interval}"/>
-            </tasklet>
-        </step>
-    </job>
+    <!--<job id="test_job" xmlns="http://www.springframework.org/schema/batch">-->
+        <!--<step id="test">-->
+            <!--<tasklet>-->
+                <!--<chunk reader="combined_output_reader" writer="combined_output_writer"-->
+                       <!--commit-interval="${job.commit.interval}"/>-->
+            <!--</tasklet>-->
+        <!--</step>-->
+    <!--</job>-->
 
     <bean id="calculateSalesIncentiveTasklet" class="com.philips.cn.hr.pps.processor.CalculateSalesIncentiveTasklet" >
         <!--<property name="directory" value="file:csv/inputs/" />-->
@@ -272,25 +279,39 @@
     </bean>
 
 
-    <bean id="combined_output_reader" class="org.springframework.batch.item.database.JdbcCursorItemReader">
+    <bean id="CN15_output_reader" class="org.springframework.batch.item.database.JdbcCursorItemReader">
         <property name="dataSource" ref="mysqlDataSource"/>
         <property name="sql">
-            <!--            SELECT personNum,companyCode,costCenter,
-            exceptions,jobGrade,esGrp,eeGrp,wageType,amount,
-            currency,si,employeeType,annualIncentive,holiday,laborUnion
-            FROM pps;-->
             <value>
                 <![CDATA[
                     SELECT
                       companyCode,costCenter,employeeType,personalSubArea,
                       sum(annualIncentive),sum(holiday),sum(laborUnion),sum(monthlySalesIncentive)
-                    FROM (select * from employee where UPPER(eeGrp)!='X') as e
+                    FROM (select * from employee where UPPER(eeGrp)!='X' and UPPER(companyCode)='CN15') as e
                       group by companyCode,costCenter,employeeType,personalSubArea
                 ]]>
             </value>
         </property>
         <property name="rowMapper">
             <bean class="com.philips.cn.hr.pps.mapper.SalesIncentiveMapper"/>
+        </property>
+    </bean>
+
+    <bean id="OTHER_output_reader" class="org.springframework.batch.item.database.JdbcCursorItemReader">
+        <property name="dataSource" ref="mysqlDataSource"/>
+        <property name="sql">
+            <value>
+                <![CDATA[
+                    SELECT
+                      companyCode,costCenter,employeeType,personalSubArea,
+                      sum(annualIncentive),sum(holiday),sum(laborUnion)
+                    FROM (select * from employee where UPPER(eeGrp)!='X' and UPPER(companyCode) !='CN15') as e
+                      group by companyCode,costCenter,employeeType,personalSubArea
+                ]]>
+            </value>
+        </property>
+        <property name="rowMapper">
+            <bean class="com.philips.cn.hr.pps.mapper.CombinedOutputRowMapper"/>
         </property>
     </bean>
 
