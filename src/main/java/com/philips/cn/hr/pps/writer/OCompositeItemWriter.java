@@ -43,9 +43,6 @@ public class OCompositeItemWriter implements ItemStreamWriter<GenericOutput>, In
 
     @Override
     public void write(List<? extends GenericOutput> item) throws Exception {
-//        for (ItemWriter<? super T> writer : delegates) {
-//            writer.write(item);
-//        }
 
         for(GenericOutput t : item){
             ItemWriter<? super GenericOutput> itemWriter  = getAssociatedItemWriter(t);

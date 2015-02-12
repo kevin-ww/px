@@ -17,5 +17,6 @@ CREATE TABLE employee (
   annualIncentive DECIMAL(10,2) ,
   holiday DECIMAL(10,2) ,
   laborUnion DECIMAL(10,2) ,
-  personalSubArea varchar(255)
+  personalSubArea varchar(255),
+  monthlySalesIncentive DECIMAL(10,2)
 )

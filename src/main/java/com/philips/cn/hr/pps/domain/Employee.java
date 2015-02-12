@@ -25,29 +25,50 @@ public class Employee {
 
     public static final BigDecimal TWELVE_MONTH=new BigDecimal(12);
 
+    public static final String NA="N/A";
 
 
 
     String personNum;
-    String companyCode;
-    String costCenter;
-    String jobGrade;
-    BigDecimal baseSalary;
-    BigDecimal bonus;
-    String currency;
-    String exceptions;  //ZZ01 no need to calculate AI
+    String companyCode=NA;
+    String costCenter=NA;
+    String jobGrade=NA;
+    BigDecimal baseSalary=ZERO;
+    BigDecimal bonus=ZERO;
+    String currency=NA;
+    String exceptions=NA;  //ZZ01 no need to calculate AI
 
 
     int salesIndicator = 1;  // 0  means sales; others not;
-    String employeeType;     //local hiring ,local plus, expatriates;
+    String employeeType=NA;     //local hiring ,local plus, expatriates;
 
     //
-    String eeGrp;
-    String esGrp;
+    String eeGrp=NA;
+    String esGrp=NA;
 
 
 
-    String wageType;
+    String wageType=NA;
+
+    BigDecimal annualIncentive=ZERO;
+    BigDecimal holiday=ZERO;
+    BigDecimal laborUnion=ZERO;
+
+    String personalSubArea=NA;
+
+    BigDecimal monthlySalesIncentive=ZERO;
+
+    public BigDecimal getMonthlySalesIncentive() {
+        return monthlySalesIncentive;
+    }
+
+    public void setMonthlySalesIncentive(BigDecimal monthlySalesIncentive) {
+        this.monthlySalesIncentive = monthlySalesIncentive;
+    }
+
+
+
+
 
     public String getWageType() {
         return wageType;
@@ -74,11 +95,7 @@ public class Employee {
     }
     //
 
-    BigDecimal annualIncentive=ZERO;
-    BigDecimal holiday=ZERO;
-    BigDecimal laborUnion=ZERO;
 
-    String personalSubArea;
 
     //
 

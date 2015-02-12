@@ -45,18 +45,18 @@
     </bean>
 
 
-    <jdbc:embedded-database id="mysqlDataSource">
-        <jdbc:script location="classpath:schema.sql"/>
-    </jdbc:embedded-database>
+    <!--<jdbc:embedded-database id="mysqlDataSource">-->
+        <!--<jdbc:script location="classpath:schema.sql"/>-->
+    <!--</jdbc:embedded-database>-->
 
 
 
-    <!--<bean id="mysqlDataSource"  class="org.apache.commons.dbcp.BasicDataSource">-->
-    <!--<property name="driverClassName" value="com.mysql.jdbc.Driver"/>-->
-    <!--<property name="url" value="jdbc:mysql://localhost:3306/kevin"/>-->
-    <!--<property name="username" value="root"/>-->
-    <!--<property name="password" value=""/>-->
-    <!--</bean>-->
+    <bean id="mysqlDataSource"  class="org.apache.commons.dbcp.BasicDataSource">
+    <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+    <property name="url" value="jdbc:mysql://datanode1:3306/kevin"/>
+    <property name="username" value="root"/>
+    <property name="password" value=""/>
+    </bean>
 
 
     <bean id="jobLauncher"
@@ -73,11 +73,15 @@
             </tasklet>
         </step>
 
-        <step id="load_f2_data" next="output_calc_result">
+        <step id="load_f2_data" next="Calculate_SalesIncentive">
             <tasklet>
                 <chunk reader="f2_data_reader" processor="f2_data_processor" writer="f2_db_writer"
                        commit-interval="${job.commit.interval}"/>
             </tasklet>
+        </step>
+
+        <step id="Calculate_SalesIncentive" next="output_calc_result">
+            <tasklet ref="calculateSalesIncentiveTasklet"/>
         </step>
 
         <step id="output_calc_result">
@@ -105,7 +109,17 @@
         </step>
     </job>
 
-    <bean id="combined_output_writer" class="com.philips.cn.hr.pps.writer.OCompositeItemWriter" scope="step">
+    <bean id="calculateSalesIncentiveTasklet" class="com.philips.cn.hr.pps.processor.CalculateSalesIncentiveTasklet" >
+        <!--<property name="directory" value="file:csv/inputs/" />-->
+        <property name="dataSource" ref="mysqlDataSource" />
+        <property name="sql_50" value="update employee set monthlySalesIncentive = 48000.00/12 where salesIndicator=0 and jobGrade='50'"/>
+        <property name="sql_60" value="update employee set monthlySalesIncentive = 72000.00/12 where salesIndicator=0 and jobGrade='60'"/>
+        <property name="sql_70" value="update employee set monthlySalesIncentive = 96000.00/12 where salesIndicator=0 and jobGrade='70'"/>
+        <property name="sql_80" value="update employee set monthlySalesIncentive = 144000.00/12 where salesIndicator=0 and jobGrade='80'"/>
+        <!--<property name="sql" value="delete from ..." />-->
+    </bean>
+
+    <bean id="combined_output_writer" class="com.philips.cn.hr.pps.writer.XCompositeItemWriter" scope="step">
         <property name="saveAsDestination" value="#{jobParameters[save_as_destination]}"/>
     </bean>
 
@@ -209,10 +223,10 @@
                 <![CDATA[
                     INSERT INTO employee
                         (personNum,companyCode,eeGrp,esGrp,costCenter,
-                        baseSalary,currency,wageType,jobGrade,personalSubArea,employeeType,holiday,laborUnion,annualIncentive)
+                        baseSalary,currency,wageType,jobGrade,personalSubArea,employeeType,holiday,laborUnion,annualIncentive,monthlySalesIncentive)
                     VALUES
                         (:personNum,:companyCode,:eeGrp,:esGrp,:costCenter,
-                        :baseSalary,:currency,:wageType,:jobGrade,:personalSubArea,:employeeType,:holiday,:laborUnion,:annualIncentive)
+                        :baseSalary,:currency,:wageType,:jobGrade,:personalSubArea,:employeeType,:holiday,:laborUnion,:annualIncentive,:monthlySalesIncentive)
                 ]]>
             </value>
         </property>
@@ -269,14 +283,14 @@
                 <![CDATA[
                     SELECT
                       companyCode,costCenter,employeeType,personalSubArea,
-                      sum(annualIncentive),sum(holiday),sum(laborUnion)
+                      sum(annualIncentive),sum(holiday),sum(laborUnion),sum(monthlySalesIncentive)
                     FROM (select * from employee where UPPER(eeGrp)!='X') as e
                       group by companyCode,costCenter,employeeType,personalSubArea
                 ]]>
             </value>
         </property>
         <property name="rowMapper">
-            <bean class="com.philips.cn.hr.pps.mapper.CombinedOutputRowMapper"/>
+            <bean class="com.philips.cn.hr.pps.mapper.SalesIncentiveMapper"/>
         </property>
     </bean>
 

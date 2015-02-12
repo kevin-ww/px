@@ -15,9 +15,6 @@ public class CombinedOutput extends GenericOutput{
 
     BigDecimal laborUnion;
 
-
-
-
     @Override
     public String toString() {
 
