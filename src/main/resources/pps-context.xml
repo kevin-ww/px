@@ -119,7 +119,7 @@
     <bean id="calculateSalesIncentiveTasklet" class="com.philips.cn.hr.pps.processor.CalculateSalesIncentiveTasklet" >
         <!--<property name="directory" value="file:csv/inputs/" />-->
         <property name="dataSource" ref="mysqlDataSource" />
-        <property name="sql_50" value="update employee set monthlySalesIncentive = 48000.00/12 where salesIndicator=0 and jobGrade='50'"/>
+        <property name="sql_50" value="update employee set monthlySalesIncentive = 48000.00/12 where salesIndicator=0 and jobGrade in ('10','20','30','40','50')"/>
         <property name="sql_60" value="update employee set monthlySalesIncentive = 72000.00/12 where salesIndicator=0 and jobGrade='60'"/>
         <property name="sql_70" value="update employee set monthlySalesIncentive = 96000.00/12 where salesIndicator=0 and jobGrade='70'"/>
         <property name="sql_80" value="update employee set monthlySalesIncentive = 144000.00/12 where salesIndicator=0 and jobGrade='80'"/>
